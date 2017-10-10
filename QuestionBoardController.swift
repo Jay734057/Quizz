@@ -95,6 +95,12 @@ class QuestionBoardController: UIViewController {
         super.viewDidLoad()
         setupView()
     }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        progressBar.widthAnchor.constraint(equalToConstant: progressView.frame.size.width / CGFloat(questionBank.questionList.count)).isActive = true
+    }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -134,7 +140,7 @@ class QuestionBoardController: UIViewController {
         
         progressView.addSubview(progressBar)
         progressBar.leftAnchor.constraint(equalTo: progressView.leftAnchor).isActive = true
-        progressBar.widthAnchor.constraint(equalToConstant: 24).isActive = true
+        
         progressBar.bottomAnchor.constraint(equalTo: progressView.bottomAnchor).isActive = true
         progressBar.heightAnchor.constraint(equalToConstant: 14).isActive = true
         
