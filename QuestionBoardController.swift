@@ -22,6 +22,8 @@ class QuestionBoardController: UIViewController {
         label.textColor = UIColor.white
         label.textAlignment = .center
         label.font = UIFont(name: "HelveticaNeue-Thin", size: 25)
+        label.lineBreakMode = .byTruncatingTail
+        label.numberOfLines = 8
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -55,7 +57,7 @@ class QuestionBoardController: UIViewController {
         label.textAlignment = .right
         label.textColor = UIColor.white
         label.font = UIFont.systemFont(ofSize: 17)
-        label.text = "Score: 9999 "
+        label.text = "Score: 0 "
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -96,10 +98,14 @@ class QuestionBoardController: UIViewController {
         setupView()
     }
     
+    var progressBarWidthAnchor: NSLayoutConstraint?
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        progressBar.widthAnchor.constraint(equalToConstant: progressView.frame.size.width / CGFloat(questionBank.questionList.count)).isActive = true
+        progressBarWidthAnchor = progressBar.widthAnchor.constraint(equalToConstant: progressView.frame.size.width / CGFloat(questionBank.questionList.count))
+        
+        progressBarWidthAnchor?.isActive = true
     }
 
     override func didReceiveMemoryWarning() {
@@ -178,16 +184,41 @@ class QuestionBoardController: UIViewController {
     
     let questionBank = QuestionBank()
     var questionIndex = 0
+    var numOfCorrect = 0
     
     func nextQuestion() {
+        progressBarWidthAnchor?.constant = progressView.frame.size.width / CGFloat(questionBank.questionList.count) * CGFloat(questionIndex + 1)
+        progressLabel.text = "\(questionIndex + 1)/\(questionBank.questionList.count)"
         questionLabel.text = questionBank.questionList[questionIndex].questionText
     }
     
     func handleButtonPress(sender: UIButton) {
-        questionIndex += 1
-        if questionIndex < questionBank.questionList.count {
+        checkAnswer(selection: sender.tag == 0 ? true : false)
+        if questionIndex < questionBank.questionList.count - 1 {
+            questionIndex += 1
             nextQuestion()
+        } else {
+            //show final score
+            let alert = UIAlertController(title: "Congrats!", message: "You've finished all questions, in which you got a score of \(numOfCorrect)!", preferredStyle: .alert)
+            let resetQuestion = UIAlertAction(title: "Restart", style: .default, handler: { (_) in
+                self.questionIndex = 0
+                self.numOfCorrect = 0
+                self.scoreLabel.text = "Score: \(self.numOfCorrect) "
+                self.nextQuestion()
+            })
+            alert.addAction(resetQuestion)
+            
+            present(alert, animated: true, completion: nil)
         }
     }
+    
+    func checkAnswer(selection: Bool) {
+        if questionBank.questionList[questionIndex].answer == selection {
+            numOfCorrect += 1
+            //update the score
+            scoreLabel.text = "Score: \(numOfCorrect) "
+        }
+    }
+    
 }
 
