@@ -214,9 +214,14 @@ class QuestionBoardController: UIViewController {
     
     func checkAnswer(selection: Bool) {
         if questionBank.questionList[questionIndex].answer == selection {
+            
+            ProgressHUD.showSuccess("Correct!")
+            
             numOfCorrect += 1
             //update the score
             scoreLabel.text = "Score: \(numOfCorrect) "
+        } else {
+            ProgressHUD.showError("Wrong!")
         }
     }
     
